@@ -174,9 +174,8 @@ class HDFileSystem(object):
         if self.token:
             _lib.hdfsBuilderSetToken(o, ensure_bytes(self.token))
         if self.pars:
-            for par in self.pars:
-                if not  _lib.hdfsBuilderConfSetStr(o, ensure_bytes(par),
-                                          ensure_bytes(self.pars(par))) == 0:
+            for par, val in self.pars.items():
+                if not  _lib.hdfsBuilderConfSetStr(o, ensure_bytes(par), ensure_bytes(val)) == 0:
                     warnings.warn('Setting conf parameter %s failed' % par)
         fs = _lib.hdfsBuilderConnect(o)
         if fs:
