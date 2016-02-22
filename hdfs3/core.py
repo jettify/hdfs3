@@ -178,7 +178,7 @@ class HDFileSystem(object):
             for par, val in self.pars.items():
                 if not  _lib.hdfsBuilderConfSetStr(o, ensure_bytes(par), ensure_bytes(val)) == 0:
                     warnings.warn('Setting conf parameter %s failed' % par)
-        fs = _lib.hdfsBuilderConnect(o, self.effective_user)
+        fs = _lib.hdfsBuilderConnect(o, ensure_bytes(self.effective_user))
         if fs:
             logger.debug("Connect to handle %d", fs.contents.filesystem)
             self._handle = fs
