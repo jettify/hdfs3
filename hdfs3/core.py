@@ -122,7 +122,7 @@ class HDFileSystem(object):
     >>> hdfs = HDFileSystem(host='127.0.0.1', port=8020)  # doctest: +SKIP
     """
     def __init__(self, host=None, port=None, user=None, ticket_cache=None,
-            token=None, pars=None, connect=True):
+                 token=None, pars=None, connect=True, effective_user=None):
         """
         Parameters
         ----------
@@ -138,6 +138,7 @@ class HDFileSystem(object):
         self.host = host or conf.get('host', 'localhost')
         self.port = port or conf.get('port', 8020)
         self.user = user
+        self.effective_user = effective_user
         self.ticket_cache = ticket_cache
         self.pars = pars
         self.token = None  # Delegation token (generated)
@@ -177,7 +178,7 @@ class HDFileSystem(object):
             for par, val in self.pars.items():
                 if not  _lib.hdfsBuilderConfSetStr(o, ensure_bytes(par), ensure_bytes(val)) == 0:
                     warnings.warn('Setting conf parameter %s failed' % par)
-        fs = _lib.hdfsBuilderConnect(o)
+        fs = _lib.hdfsBuilderConnect(o, self.effective_user)
         if fs:
             logger.debug("Connect to handle %d", fs.contents.filesystem)
             self._handle = fs
