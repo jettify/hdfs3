@@ -186,7 +186,8 @@ class HDFileSystem(object):
             #    self._token = _lib.hdfsGetDelegationToken(self._handle,
             #                                             ensure_bytes(self.user))
         else:
-            raise RuntimeError('Connection Failed')
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise RuntimeError('Connection Failed: {}'.format(msg))
 
     def disconnect(self):
         """ Disconnect from name node """
