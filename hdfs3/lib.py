@@ -422,8 +422,15 @@ return Returns 0 on success, -1 on error."""
 
 hdfsCreateDirectoryEx = _lib.hdfsCreateDirectoryEx
 hdfsCreateDirectoryEx.argtypes = [ct.POINTER(hdfsFS), ct.c_char_p, ct.c_short,
-                                  ct.int]
-hdfsCreateDirectoryEx.__doc__ = """xxx"""
+                                  ct.c_int]
+hdfsCreateDirectoryEx.__doc__ = """Make the given file and all non-existent
+parents into directories.
+
+param fs The configured filesystem handle.
+param path The path of the directory.
+param mode permissions for created directories like 0777
+param create_parent Create intermediate directories as required
+return Returns 0 on success, -1 on error."""
 
 hdfsSetReplication = _lib.hdfsSetReplication
 hdfsSetReplication.argtypes = [ct.POINTER(hdfsFS), ct.c_char_p, ct.c_int16]

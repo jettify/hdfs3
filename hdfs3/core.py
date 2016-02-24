@@ -353,8 +353,9 @@ class HDFileSystem(object):
 
     def mkdir_ex(self, path, mode, create_parent):
         """ Make directory at path """
+        parent = int(bool(create_parent))  # value should be 0 or 1
         out = _lib.hdfsCreateDirectoryEx(self._handle, ensure_bytes(path),
-                                         mode, int(create_parent))
+                                         mode, parent)
         if out != 0:
             raise IOError('Create directory failed')
 
@@ -721,7 +722,7 @@ class HDFile(object):
 
     def __repr__(self):
         return 'hdfs://%s:%s%s, %s' % (self.fs.host, self.fs.port,
-                                            self.path, self.mode)
+                                             self.path, self.mode)
 
     def __enter__(self):
         return self
