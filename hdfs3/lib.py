@@ -420,6 +420,11 @@ param fs The configured filesystem handle.
 param path The path of the directory.
 return Returns 0 on success, -1 on error."""
 
+hdfsCreateDirectoryEx = _lib.hdfsCreateDirectoryEx
+hdfsCreateDirectoryEx.argtypes = [ct.POINTER(hdfsFS), ct.c_char_p, ct.c_short,
+                                  ct.int]
+hdfsCreateDirectoryEx.__doc__ = """xxx"""
+
 hdfsSetReplication = _lib.hdfsSetReplication
 hdfsSetReplication.argtypes = [ct.POINTER(hdfsFS), ct.c_char_p, ct.c_int16]
 hdfsSetReplication.__doc__ = """Set the replication of the specified

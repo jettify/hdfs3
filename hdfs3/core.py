@@ -351,6 +351,13 @@ class HDFileSystem(object):
         if out != 0:
             raise IOError('Create directory failed')
 
+    def mkdir_ex(self, path, mode, create_parent):
+        """ Make directory at path """
+        out = _lib.hdfsCreateDirectoryEx(self._handle, ensure_bytes(path),
+                                         mode, int(create_parent))
+        if out != 0:
+            raise IOError('Create directory failed')
+
     def set_replication(self, path, replication):
         """ Instruct HDFS to set the replication for the given file.
 
