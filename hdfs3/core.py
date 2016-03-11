@@ -349,6 +349,15 @@ class HDFileSystem(object):
         """ Make directory at path """
         out = _lib.hdfsCreateDirectory(self._handle, ensure_bytes(path))
         if out != 0:
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('Create directory failed: {}'.format(msg))
+
+    def mkdir_ex(self, path, mode, create_parent):
+        """ Make directory at path """
+        parent = int(bool(create_parent))  # value should be 0 or 1
+        out = _lib.hdfsCreateDirectoryEx(self._handle, ensure_bytes(path),
+                                         mode, parent)
+        if out != 0:
             raise IOError('Create directory failed')
 
     def mkdir_ex(self, path, mode, create_parent):
@@ -372,7 +381,8 @@ class HDFileSystem(object):
         out = _lib.hdfsSetReplication(self._handle, ensure_bytes(path),
                                      ctypes.c_int16(int(replication)))
         if out != 0:
-            raise IOError('Set replication failed')
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('Set replication failed: {}'.format(msg))
 
     def mv(self, path1, path2):
         """ Move file at path1 to path2 """
@@ -387,7 +397,8 @@ class HDFileSystem(object):
             raise FileNotFoundError(path)
         out = _lib.hdfsDelete(self._handle, ensure_bytes(path), bool(recursive))
         if out != 0:
-            raise IOError('Remove failed on %s' % path)
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('Remove failed on %s %s' % (path, msg))
 
     def exists(self, path):
         """ Is there an entry at path? """
@@ -419,7 +430,8 @@ class HDFileSystem(object):
             raise FileNotFoundError(path)
         out = _lib.hdfsChmod(self._handle, ensure_bytes(path), ctypes.c_short(mode))
         if out != 0:
-            raise IOError("chmod failed on %s" % path)
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError("chmod failed on %s %s" % (path, msg))
 
     def chown(self, path, owner, group):
         """ Change owner/group """
@@ -428,7 +440,8 @@ class HDFileSystem(object):
         out = _lib.hdfsChown(self._handle, ensure_bytes(path), ensure_bytes(owner),
                             ensure_bytes(group))
         if out != 0:
-            raise IOError("chown failed on %s" % path)
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError("chown failed on %s %s" % (path, msg))
 
     def cat(self, path):
         """ Return contents of file """
@@ -578,8 +591,9 @@ class HDFile(object):
                                 ctypes.c_short(self.replication),
                                 ctypes.c_int64(self.block_size))
         if not out:
-            raise IOError("Could not open file: %s, mode: %s" %
-                          (self.path, self.mode))
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError("Could not open file: %s, mode: %s %s" %
+                          (self.path, self.mode, msg))
         self._handle = out
 
     def read(self, length=None):
@@ -656,7 +670,8 @@ class HDFile(object):
         """ Get current byte location in a file """
         out = _lib.hdfsTell(self._fs, self._handle)
         if out == -1:
-            raise IOError('Tell Failed on file %s' % self.path)
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('Tell Failed on file %s %s' % (self.path, msg))
         return out
 
     def seek(self, offset, from_what=0):
@@ -689,7 +704,8 @@ class HDFile(object):
             raise ValueError('Attempt to seek outside file')
         out = _lib.hdfsSeek(self._fs, self._handle, ctypes.c_int64(offset))
         if out == -1:
-            raise IOError('Seek Failed on file %s' % self.path)  # pragma: no cover
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('Seek Failed on file %s' % (self.path, msg))  # pragma: no cover
         return self.tell()
 
     def info(self):
@@ -702,9 +718,11 @@ class HDFile(object):
         if not data:
             return
         if not _lib.hdfsFileIsOpenForWrite(self._handle):
-            raise IOError('File not write mode')
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('File not write mode: {}'.format(msg))
         if not _lib.hdfsWrite(self._fs, self._handle, data, len(data)) == len(data):
-            raise IOError('Write failed on file %s' % self.path)
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('Write failed on file %s' % (self.path, msg))
 
     def flush(self):
         """ Send buffer to the data-node; actual write to disc may happen later """
