@@ -537,12 +537,12 @@ class HDFileSystem(object):
             bytes = read_block(f, offset, length, delimiter)
         return bytes
 
-    def create_token(self):
-        out = _lib.hdfsGetDelegationToken(self._handle, ensure_bytes(path),
-                                          ctypes.c_short(mode))
+    def create_token(self, renewer):
+        out = _lib.hdfsGetDelegationToken(self._handle, ensure_bytes(renewer))
         if out is None:
             msg = ensure_string(_lib.hdfsGetLastError())
             raise IOError("create_token failed with: %s" % msg)
+        return out
 
     def free_token(self, token):
         out = _lib.hdfsFreeDelegationToken(self._handle, ensure_bytes(token))
