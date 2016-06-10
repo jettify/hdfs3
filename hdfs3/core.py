@@ -141,7 +141,7 @@ class HDFileSystem(object):
         self.effective_user = effective_user
         self.ticket_cache = ticket_cache
         self.pars = pars
-        self.token = None  # Delegation token (generated)
+        self.token = token  # Delegation token (generated)
         self._handle = None
         if connect:
             self.connect()
