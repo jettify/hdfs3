@@ -141,7 +141,7 @@ class HDFileSystem(object):
         self.effective_user = effective_user
         self.ticket_cache = ticket_cache
         self.pars = pars
-        self.token = None  # Delegation token (generated)
+        self.token = token  # Delegation token (generated)
         self._handle = None
         if connect:
             self.connect()
@@ -170,10 +170,12 @@ class HDFileSystem(object):
         _lib.hdfsBuilderSetNameNode(o, ensure_bytes(self.host))
         if self.user:
             _lib.hdfsBuilderSetUserName(o, ensure_bytes(self.user))
+
         if self.ticket_cache:
             _lib.hdfsBuilderSetKerbTicketCachePath(o, ensure_bytes(self.ticket_cache))
-        if self.token:
+        elif self.token:
             _lib.hdfsBuilderSetToken(o, ensure_bytes(self.token))
+
         if self.pars:
             for par, val in self.pars.items():
                 if not  _lib.hdfsBuilderConfSetStr(o, ensure_bytes(par), ensure_bytes(val)) == 0:
@@ -534,6 +536,31 @@ class HDFileSystem(object):
                 length = size - offset
             bytes = read_block(f, offset, length, delimiter)
         return bytes
+
+    def create_token(self):
+        out = _lib.hdfsGetDelegationToken(self._handle, ensure_bytes(path),
+                                          ctypes.c_short(mode))
+        if out is None:
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError("create_token failed with: %s" % msg)
+
+    def free_token(self, token):
+        out = _lib.hdfsFreeDelegationToken(self._handle, ensure_bytes(token))
+        return out
+
+    def renew_token(self, token):
+        out = _lib.hdfsRenewDelegationToken(self._handle, ensure_bytes(token))
+        if out is -1:
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError("renew_token failed with: %s" % msg)
+        return out
+
+    def cancel_token(self, token):
+        out = _lib.hdfsCancelDelegationToken(self._handle, ensure_bytes(token))
+        if out is -1:
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError("cancel_token failed with: %s" % msg)
+        return out
 
 
 def struct_to_dict(s):
