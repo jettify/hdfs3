@@ -168,7 +168,9 @@ class HDFileSystem(object):
         o = _lib.hdfsNewBuilder()
         _lib.hdfsBuilderSetNameNodePort(o, self.port)
         _lib.hdfsBuilderSetNameNode(o, ensure_bytes(self.host))
-        if self.user:
+
+        if self.user and not self.token:
+            # core dump will happened if token and user specified in same time
             _lib.hdfsBuilderSetUserName(o, ensure_bytes(self.user))
 
         if self.ticket_cache:
