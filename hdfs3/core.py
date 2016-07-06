@@ -347,7 +347,8 @@ class HDFileSystem(object):
 
     def __del__(self):
         if self._handle:
-            self.disconnect()
+            _lib.hdfsDisconnect(self._handle)
+        self._handle = None
 
     def mkdir(self, path):
         """ Make directory at path """
