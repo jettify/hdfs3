@@ -121,7 +121,7 @@ class HDFileSystem(object):
 
     >>> hdfs = HDFileSystem(host='127.0.0.1', port=8020)  # doctest: +SKIP
     """
-    def __init__(self, host=None, port=None, user=None, ticket_cache=None,
+    def __init__(self, host=None, port=8020, user=None, ticket_cache=None,
                  token=None, pars=None, connect=True, effective_user=None):
         """
         Parameters
@@ -136,7 +136,7 @@ class HDFileSystem(object):
             other parameters for hadoop
         """
         self.host = host or conf.get('host', 'localhost')
-        self.port = port or conf.get('port', 8020)
+        self.port = port
         self.user = user
         self.effective_user = effective_user
         self.ticket_cache = ticket_cache
@@ -166,8 +166,9 @@ class HDFileSystem(object):
             return
 
         o = _lib.hdfsNewBuilder()
-        _lib.hdfsBuilderSetNameNodePort(o, self.port)
         _lib.hdfsBuilderSetNameNode(o, ensure_bytes(self.host))
+        if port is not None:
+            _lib.hdfsBuilderSetNameNodePort(o, self.port)
 
         if self.user and not self.token:
             # core dump will happened if token and user specified in same time
