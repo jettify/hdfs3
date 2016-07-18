@@ -167,7 +167,7 @@ class HDFileSystem(object):
 
         o = _lib.hdfsNewBuilder()
         _lib.hdfsBuilderSetNameNode(o, ensure_bytes(self.host))
-        if port is not None:
+        if self.port is not None:
             _lib.hdfsBuilderSetNameNodePort(o, self.port)
 
         if self.user and not self.token:
