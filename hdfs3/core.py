@@ -746,7 +746,7 @@ class HDFile(object):
             raise IOError('File not write mode: {}'.format(msg))
         if not _lib.hdfsWrite(self._fs, self._handle, data, len(data)) == len(data):
             msg = ensure_string(_lib.hdfsGetLastError())
-            raise IOError('Write failed on file %s' % (self.path, msg))
+            raise IOError('Write failed on file %s, %s' % (self.path, msg))
 
     def flush(self):
         """ Send buffer to the data-node; actual write to disc may happen later """
