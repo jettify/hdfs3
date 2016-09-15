@@ -68,15 +68,24 @@ def conf_to_dict(fname):
 conf = hdfs_conf()
 
 
-def ensure_bytes(s):
+def ensure_bytes(s, encoding='utf-8'):
     """ Give strings that ctypes is guaranteed to handle """
-    if isinstance(s, dict):
-        return {k: ensure_bytes(v) for k, v in s.items()}
-    if isinstance(s, str) and sys.version_info < (3,):
+    if PY3 and isinstance(s, bytes):
+        return s
+    if not PY3 and isinstance(s, str):
         return s
     if hasattr(s, 'encode'):
-        return s.encode()
+        return s.encode(encoding)
+    if hasattr(s, 'tobytes'):
+        return s.tobytes()
+    if isinstance(s, bytearray):
+        return bytes(s)
+    if not PY3 and hasattr(s, 'tostring'):
+        return s.tostring()
+    if isinstance(s, dict):
+        return {k: ensure_bytes(v) for k, v in s.items()}
     else:
+        # Perhaps it works anyway - could raise here
         return s
 
 
