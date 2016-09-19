@@ -374,7 +374,7 @@ class HDFileSystem(object):
                                          mode, parent)
         if out != 0:
             msg = ensure_string(_lib.hdfsGetLastError())
-            raise IOError('Create directory failed')
+            raise IOError('Create directory failed: {}'.format(msg))
 
     def set_replication(self, path, replication):
         """ Instruct HDFS to set the replication for the given file.
