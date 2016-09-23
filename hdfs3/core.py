@@ -363,7 +363,7 @@ class HDFileSystem(object):
     def mkdir(self, path):
         """ Make directory at path """
         out = _lib.hdfsCreateDirectory(self._handle, ensure_bytes(path))
-        if out != 0:
+        if out == -1:
             msg = ensure_string(_lib.hdfsGetLastError())
             raise IOError('Create directory failed: {}'.format(msg))
 
@@ -372,7 +372,7 @@ class HDFileSystem(object):
         parent = int(bool(create_parent))  # value should be 0 or 1
         out = _lib.hdfsCreateDirectoryEx(self._handle, ensure_bytes(path),
                                          mode, parent)
-        if out != 0:
+        if out == -1:
             msg = ensure_string(_lib.hdfsGetLastError())
             raise IOError('Create directory failed: {}'.format(msg))
 
@@ -388,7 +388,7 @@ class HDFileSystem(object):
             raise ValueError('Replication must be positive, or 0 for system default')
         out = _lib.hdfsSetReplication(self._handle, ensure_bytes(path),
                                      ctypes.c_int16(int(replication)))
-        if out != 0:
+        if out == -1:
             msg = ensure_string(_lib.hdfsGetLastError())
             raise IOError('Set replication failed: {}'.format(msg))
 
@@ -397,21 +397,27 @@ class HDFileSystem(object):
         if not self.exists(path1):
             raise FileNotFoundError(path1)
         out = _lib.hdfsRename(self._handle, ensure_bytes(path1), ensure_bytes(path2))
-        return out == 0
+        if out == -1:
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('Rename failed on %s %s' % (path, msg))
+        return out == 1
 
     def rm(self, path, recursive=True):
         "Use recursive for `rm -r`, i.e., delete directory and contents"
         if not self.exists(path):
             raise FileNotFoundError(path)
         out = _lib.hdfsDelete(self._handle, ensure_bytes(path), bool(recursive))
-        if out != 0:
+        if out == -1:
             msg = ensure_string(_lib.hdfsGetLastError())
             raise IOError('Remove failed on %s %s' % (path, msg))
 
     def exists(self, path):
         """ Is there an entry at path? """
         out = _lib.hdfsExists(self._handle, ensure_bytes(path) )
-        return out == 0
+        if out == -1:
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('Exists failed on %s %s' % (path, msg))
+        return out == 1
 
     def chmod(self, path, mode):
         """Change access control of given path
