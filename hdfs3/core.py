@@ -744,7 +744,7 @@ class HDFile(object):
         out = _lib.hdfsSeek(self._fs, self._handle, ctypes.c_int64(offset))
         if out == -1:
             msg = ensure_string(_lib.hdfsGetLastError())
-            raise IOError('Seek Failed on file %s' % (self.path, msg))  # pragma: no cover
+            raise IOError('Seek Failed on file %s %s' % (self.path, msg))  # pragma: no cover
         return self.tell()
 
     def info(self):
@@ -765,7 +765,10 @@ class HDFile(object):
 
     def flush(self):
         """ Send buffer to the data-node; actual write to disc may happen later """
-        _lib.hdfsFlush(self._fs, self._handle)
+        out = _lib.hdfsFlush(self._fs, self._handle)
+        if out == -1:
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError('Flush Failed on file %s %s' % (self.path, msg))
 
     def close(self):
         """ Flush and close file, ensuring the data is readable """
