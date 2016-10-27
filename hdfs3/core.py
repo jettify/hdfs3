@@ -772,7 +772,8 @@ class HDFile(object):
 
     def close(self):
         """ Flush and close file, ensuring the data is readable """
-        self.flush()
+        if self.mode in ('ab', 'wb'):
+            self.flush()
         _lib.hdfsCloseFile(self._fs, self._handle)
         self._handle = None  # _libhdfs releases memory
         self.mode = 'closed'
