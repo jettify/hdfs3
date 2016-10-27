@@ -744,7 +744,7 @@ class HDFile(object):
         out = _lib.hdfsSeek(self._fs, self._handle, ctypes.c_int64(offset))
         if out == -1:
             msg = ensure_string(_lib.hdfsGetLastError())
-            raise IOError('Seek Failed on file %s' % (self.path, msg))  # pragma: no cover
+            raise IOError('Seek Failed on file %s %s' % (self.path, msg))  # pragma: no cover
         return self.tell()
 
     def info(self):
