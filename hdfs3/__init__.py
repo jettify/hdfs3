@@ -1,3 +1,3 @@
 from .core import HDFileSystem, HDFile
 
-__version__ = '0.1.19'
+__version__ = '0.1.20'
