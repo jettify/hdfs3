@@ -544,6 +544,23 @@ param pos the position the file will be truncated to.
 param shouldWait output value, true if and client does not need to wait for block recovery,
 false if client needs to wait for block recovery."""
 
+hdfsGetKmsToken = _lib.hdfsGetKmsToken
+hdfsGetKmsToken.argtypes = [ct.POINTER(hdfsFS)]
+hdfsGetKmsToken.restype = ct.c_char_p
+hdfsGetKmsToken.__doc__ = """Get a kms token from namenode.
+The token should be freed using hdfsFreeKmsToken.
+
+param fs The file system
+return Return a kms token, NULL on error."""
+
+hdfsFreeKmsToken = _lib.hdfsFreeKmsToken
+hdfsFreeKmsToken.argtypes = [ct.c_char_p]
+hdfsFreeKmsToken.restype = None
+hdfsFreeKmsToken.__doc__ = """Free a kms token.
+
+param token The token to be freed."""
+
+
 hdfsGetDelegationToken = _lib.hdfsGetDelegationToken
 hdfsGetDelegationToken.argtypes = [ct.POINTER(hdfsFS), ct.c_char_p]
 hdfsGetDelegationToken.restype = ct.c_char_p
