@@ -556,6 +556,18 @@ class HDFileSystem(object):
             bytes = read_block(f, offset, length, delimiter)
         return bytes
 
+    def create_kms_token(self):
+        out = _lib.hdfsGetKmsToken(self._handle)
+        if out is None:
+            msg = ensure_string(_lib.hdfsGetLastError())
+            raise IOError("create_kms_token failed with: %s" % msg)
+        return out
+
+    def free_kms_token(self, token):
+        out = _lib.hdfsFreeKmsToken(self._handle, ensure_bytes(token))
+        return out
+
+
     def create_token(self, renewer):
         out = _lib.hdfsGetDelegationToken(self._handle, ensure_bytes(renewer))
         if out is None:
