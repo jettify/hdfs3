@@ -673,7 +673,8 @@ class HDFile(object):
                     length -= ret
                 else:
                     msg = ensure_string(_lib.hdfsGetLastError())
-                    raise IOError('Read file %s Failed: %s %s' % self.path, -ret, msg)
+                    raise IOError('Read file %s Failed: %s %s' %
+                                  (self.path, -ret, msg))
 
         return b''.join(buffers)
 
